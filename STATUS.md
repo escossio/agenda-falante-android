@@ -6,4 +6,5 @@
 - Gradle Wrapper adicionado parcialmente; `gradle-wrapper.jar` ainda depende de ambiente com distribuição Gradle.
 - Resources mínimos criados.
 - Nenhuma funcionalidade implementada.
-- Validação de build/APK pendente no ambiente local sem JDK/Android SDK.
+- Build Debug concluído com sucesso.
+- APK Debug gerado em `app/build/outputs/apk/debug/app-debug.apk`.
