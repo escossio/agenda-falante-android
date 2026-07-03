@@ -48,6 +48,7 @@ dependencies {
     androidTestImplementation(composeBom)
 
     implementation(project(":core-contract"))
+    implementation(project(":playback"))
     implementation("androidx.activity:activity-compose:1.10.0")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")

@@ -29,6 +29,8 @@ import com.escossio.agendafalante.corecontract.ExperiencePackage
 import com.escossio.agendafalante.corecontract.ExperiencePackageReader
 import com.escossio.agendafalante.corecontract.ExperiencePackageValidation
 import com.escossio.agendafalante.corecontract.ExperiencePackageValidator
+import com.escossio.agendafalante.playback.AudioPlaybackController
+import com.escossio.agendafalante.playback.firstAvailableSegment
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,7 +53,9 @@ class MainActivity : ComponentActivity() {
 private fun BootstrapScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val playbackController = remember { AudioPlaybackController(context) }
     var packageSnapshot by remember { mutableStateOf<PackageSnapshot?>(null) }
+    var playbackStatus by remember { mutableStateOf("Pending") }
 
     Column(
         modifier = Modifier
@@ -65,7 +69,7 @@ private fun BootstrapScreen() {
         Text(text = "Platform: OK", modifier = Modifier.padding(top = 24.dp))
         Text(text = "Bridge: Pending")
         Text(text = "Experience Package: ${if (packageSnapshot == null) "Not Loaded" else "Loaded"}")
-        Text(text = "Playback: Pending")
+        Text(text = "Playback: $playbackStatus")
         Text(text = "Status: Ready", modifier = Modifier.padding(top = 24.dp))
         Spacer(modifier = Modifier.height(16.dp))
         Button(
@@ -75,12 +79,35 @@ private fun BootstrapScreen() {
                         loadDemoPackage(context, context.filesDir.resolve("demo-package"))
                     }
                     packageSnapshot = loaded.toSnapshot()
+                    playbackStatus = "Pending"
                 }
             },
         ) {
             Text(text = "Load Demo Package")
         }
         Spacer(modifier = Modifier.height(16.dp))
+        if (packageSnapshot?.validation?.valid == true) {
+            Button(
+                onClick = {
+                    val pkgDir = context.filesDir.resolve("demo-package")
+                    val selected = firstAvailableSegment(pkgDir)
+                    if (selected == null || !selected.audioFile.isFile) {
+                        playbackStatus = "Failed"
+                        return@Button
+                    }
+                    playbackStatus = "Playing"
+                    playbackController.play(
+                        wavFile = selected.audioFile,
+                        onPlaying = { playbackStatus = "Playing" },
+                        onCompleted = { playbackStatus = "Completed" },
+                        onFailed = { playbackStatus = "Failed" },
+                    )
+                },
+            ) {
+                Text(text = "Play First Segment")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         packageSnapshot?.let { snapshot ->
             val validationLabel = if (snapshot.validation.valid) "OK" else "Failed"
             Text(text = "Package ID: ${snapshot.packageId}")
@@ -103,6 +130,9 @@ private fun BootstrapScreen() {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
+            if (!snapshot.validation.valid) {
+                playbackStatus = "Failed"
+            }
         } ?: run {
             Text(text = "Validation: Not Loaded")
         }

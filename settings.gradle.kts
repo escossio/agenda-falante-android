@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "agenda-falante-android"
 include(":app")
 include(":core-contract")
+include(":playback")
