@@ -15,3 +15,4 @@
 - Sem Android Bridge.
 - Sem chamadas.
 - Abertura em dispositivo/emulador pendente neste servidor por ausência de `adb` e `emulator`.
+- Scripts locais de produtividade Android adicionados.
