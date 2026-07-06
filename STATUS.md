@@ -37,3 +37,6 @@
 - Interface de Telephony simplificada, com diagnóstico técnico controlado por modo de desenvolvedor.
 - Último evento de telefonia apresentado em formato amigável.
 - Próxima etapa: resolução de contatos via `ContactsContract`.
+- Fluxo oficial de build local de APK debug organizado no AGT.
+- Distribuição local em `release-local/` habilitada e ignorada no Git.
+- Estrutura inicial de testes de integração Twilio preparada em `integration-tests/`.

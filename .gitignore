@@ -9,3 +9,5 @@ captures/
 .DS_Store
 .kotlin/
 release-local/
+integration-tests/providers/twilio/twilio.env
+integration-tests/reports/
