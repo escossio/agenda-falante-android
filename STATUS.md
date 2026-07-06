@@ -16,4 +16,18 @@
 - Sem chamadas.
 - Abertura em dispositivo/emulador pendente neste servidor por ausência de `adb` e `emulator`.
 - Scripts locais de produtividade Android adicionados.
+- Fluxo oficial para aparelho físico reaplicado em `dev/build_install_open.sh`, `dev/deploy_phone.sh` e `dev/logcat_phone.sh`.
+- Diagnóstico dos scripts Android refinado para distinguir emulador único de aparelho físico ausente.
+- Diagnóstico do `dev/logcat_phone.sh` padronizado para exigir aparelho físico.
+- `dev/logcat_phone.sh` agora recusa emulador com mensagem explícita e mantém o filtro por `com.escossio.agendafalante`.
 - Playback mínimo implementado.
+- Composer Android mínimo implementado como reprodução sequencial de segmentos WAV.
+- UI do Composer mínimo agora mostra a quantidade de segmentos selecionados para a experiência demo.
+- Incoming Call Simulation implementado.
+- Event Dispatcher implementado.
+- Bridge inicial implementado.
+- Validação executada neste checkout: `bash -n` nos três scripts, `./gradlew assembleDebug` com sucesso e `adb devices` via SDK local retornando apenas `emulator-5554	device`.
+- Nenhum celular físico apareceu como `device` nesta execução, então `dev/deploy_phone.sh` não foi acionado.
+- First Real Incoming Call monitor implementado.
+- Tela principal agora usa rolagem vertical, tornando o card `Telephony` acessível ao rolar a tela.
+- Nenhuma lógica de telephony, bridge ou playback foi alterada nesta correção de UI.
