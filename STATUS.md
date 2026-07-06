@@ -32,3 +32,8 @@
 - Tela principal agora usa rolagem vertical, tornando o card `Telephony` acessível ao rolar a tela.
 - Nenhuma lógica de telephony, bridge ou playback foi alterada nesta correção de UI.
 - Fontes do módulo `playback` necessárias pelo `bridge` incluídas no fluxo de sincronização entre AGT e notebook.
+- Telephony validado em aparelho físico.
+- Captura real de Incoming Call concluída.
+- Interface de Telephony simplificada, com diagnóstico técnico controlado por modo de desenvolvedor.
+- Último evento de telefonia apresentado em formato amigável.
+- Próxima etapa: resolução de contatos via `ContactsContract`.

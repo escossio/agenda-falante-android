@@ -46,6 +46,9 @@ import com.escossio.agendafalante.playback.ExperiencePlaybackState
 import com.escossio.agendafalante.telephony.TelephonyBridge
 import com.escossio.agendafalante.telephony.TelephonyStatus
 import java.io.File
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,7 +79,7 @@ private fun BootstrapScreen() {
     ) == PackageManager.PERMISSION_GRANTED
     var telephonyPermissionGranted by remember { mutableStateOf(hasPhoneStatePermission) }
     var telephonyStatus by remember { mutableStateOf(if (hasPhoneStatePermission) "Monitoring" else "Permission Required") }
-    var lastTelephonyEvent by remember { mutableStateOf("None") }
+    var lastTelephonyEvent by remember { mutableStateOf<IncomingCallEvent?>(null) }
     var packageSnapshot by remember { mutableStateOf<PackageSnapshot?>(null) }
     var playbackStatus by remember { mutableStateOf("Experience Playback: Pending") }
     var lastEventState by remember { mutableStateOf("Idle") }
@@ -172,8 +175,8 @@ private fun BootstrapScreen() {
                 }
 
                 override fun onIncomingCallEvent(event: IncomingCallEvent) {
-                    lastTelephonyEvent = "eventId=${event.eventId}, timestamp=${event.timestamp}, contactName=${event.contactName}, experiencePackageId=${event.experiencePackageId}, type=${event.type}"
-                    diagnosticsState.lastTelephonyEvent = lastTelephonyEvent
+                    lastTelephonyEvent = event
+                    diagnosticsState.lastTelephonyEvent = "eventId=${event.eventId}, timestamp=${event.timestamp}, contactName=${event.contactName}, experiencePackageId=${event.experiencePackageId}, type=${event.type}"
                     lastEventName = "Incoming Call"
                     lastEventContact = event.contactName
                     lastEventState = "Received"
@@ -206,33 +209,49 @@ private fun BootstrapScreen() {
     ) {
         Text(text = "Agenda Falante", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
         Text(text = "Android Platform", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
-        Text(text = "Developer Diagnostics", modifier = Modifier.padding(top = 24.dp), fontWeight = FontWeight.SemiBold)
-        Text(text = "Platform: ${diagnosticsState.platformState}")
-        Text(text = "Telephony: ${diagnosticsState.telephonyState}")
-        Text(text = "Bridge: ${diagnosticsState.bridgeState}")
-        Text(text = "Experience Package: ${diagnosticsState.experiencePackageState}")
-        Text(text = "Playback: ${diagnosticsState.playbackState}")
-        Text(text = "Last Event: $lastEventName")
-        Text(text = "Contact: $lastEventContact")
-        Text(text = "Event State: $lastEventState")
-        Text(text = "Event Status: $lastEventStatus")
-        Text(text = "Last Telephony Event: ${diagnosticsState.lastTelephonyEvent}")
+        if (DEVELOPER_MODE) {
+            Text(text = "Developer Diagnostics", modifier = Modifier.padding(top = 24.dp), fontWeight = FontWeight.SemiBold)
+            Text(text = "Platform: ${diagnosticsState.platformState}")
+            Text(text = "Telephony: ${diagnosticsState.telephonyState}")
+            Text(text = "Bridge: ${diagnosticsState.bridgeState}")
+            Text(text = "Experience Package: ${diagnosticsState.experiencePackageState}")
+            Text(text = "Playback: ${diagnosticsState.playbackState}")
+            Text(text = "Last Event: $lastEventName")
+            Text(text = "Contact: $lastEventContact")
+            Text(text = "Event State: $lastEventState")
+            Text(text = "Event Status: $lastEventStatus")
+            Text(text = "Last Telephony Event: ${diagnosticsState.lastTelephonyEvent}")
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Telephony", fontWeight = FontWeight.SemiBold)
-        Text(text = "Status: $telephonyStatus")
-        Text(text = "Last Telephony Event: $lastTelephonyEvent")
+        Text(text = "Status:")
+        Text(text = telephonyStatus)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Último evento:", fontWeight = FontWeight.SemiBold)
+        lastTelephonyEvent?.let { event ->
+            Text(text = "Tipo:")
+            Text(text = "Incoming Call")
+            Text(text = "Contato:")
+            Text(text = event.contactName)
+            Text(text = "Horário:")
+            Text(text = formatEventTime(event.timestamp))
+            Text(text = "Estado:")
+            Text(text = "Received")
+        } ?: Text(text = "Nenhum")
         Spacer(modifier = Modifier.height(8.dp))
         if (telephonyPermissionGranted) {
-            Text(text = "READ_PHONE_STATE granted.")
+            if (DEVELOPER_MODE) {
+                Text(text = "READ_PHONE_STATE granted.")
+            }
         } else {
-            Text(text = "READ_PHONE_STATE required to monitor incoming calls.")
+            Text(text = "Permissão de telefone necessária para monitorar chamadas.")
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
                     requestPhoneStatePermission.launch(Manifest.permission.READ_PHONE_STATE)
                 },
             ) {
-                Text(text = "Grant Phone State")
+                Text(text = "Permitir monitoramento")
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -393,6 +412,10 @@ private data class PackageSnapshot(
     val errors: List<String>,
 )
 
+private fun formatEventTime(timestamp: Long): String {
+    return EVENT_TIME_FORMATTER.format(Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()))
+}
+
 private fun loadDemoPackage(context: Context, destination: File): LoadedExperiencePackage {
     if (destination.exists()) {
         destination.deleteRecursively()
@@ -447,3 +470,6 @@ private fun copyAssetDirectory(context: Context, destination: File, assetPath: S
         }
     }
 }
+
+private val EVENT_TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+private const val DEVELOPER_MODE = false
