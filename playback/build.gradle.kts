@@ -22,5 +22,6 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-contract"))
     testImplementation(kotlin("test"))
 }

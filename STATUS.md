@@ -31,3 +31,4 @@
 - First Real Incoming Call monitor implementado.
 - Tela principal agora usa rolagem vertical, tornando o card `Telephony` acessível ao rolar a tela.
 - Nenhuma lógica de telephony, bridge ou playback foi alterada nesta correção de UI.
+- Fontes do módulo `playback` necessárias pelo `bridge` incluídas no fluxo de sincronização entre AGT e notebook.
