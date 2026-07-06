@@ -4,20 +4,18 @@
 
 Esta estrutura prepara testes de integração reais para validar chamadas recebidas no celular físico com apoio de um provedor externo, começando por Twilio.
 
-O fluxo pretendido é:
+O fluxo oficial agora é manual-first:
 
-1. build do APK;
-2. instalação no celular;
-3. captura de `logcat`;
-4. disparo da chamada real;
-5. coleta de evidências em relatório local.
+1. AGT gera o APK;
+2. o APK fica em `release-local/agenda-falante-debug.apk`;
+3. o usuário instala manualmente no celular;
+4. o AGT dispara uma chamada real via Twilio API;
+5. o usuário valida visualmente no celular.
 
 ## Pré-requisitos
 
 - conta Twilio ativa;
 - número Twilio habilitado para voz;
-- celular Android físico conectado ao AGT;
-- `adb` disponível no ambiente;
 - `curl` disponível no ambiente;
 - credenciais locais em `integration-tests/providers/twilio/twilio.env`.
 
@@ -50,52 +48,34 @@ Preencha os campos:
 
 Não versionar esse arquivo. Ele é ignorado pelo Git.
 
-## Como conectar o celular físico
-
-1. habilite as opções de desenvolvedor;
-2. habilite depuração USB;
-3. conecte o aparelho por cabo;
-4. confirme a autorização de depuração no aparelho;
-5. verifique com `adb devices` que há um device físico em estado `device`.
-
-O cenário recusa execução quando só houver emulador.
-
 ## Como executar o cenário
 
 Execute:
 
 ```bash
-integration-tests/scenarios/incoming_call_twilio.sh
+integration-tests/scenarios/manual_incoming_call_twilio.sh
 ```
 
 O script:
 
-1. compila o APK debug;
-2. instala no aparelho físico;
-3. abre o app;
-4. inicia `logcat`;
-5. dispara a chamada via Twilio;
-6. aguarda a janela configurada;
-7. coleta screenshot e resumo.
+1. verifica a existência do APK em `release-local/agenda-falante-debug.apk`;
+2. mostra o caminho do APK e o SHA-256;
+3. pede confirmação de instalação manual;
+4. dispara a chamada via Twilio;
+5. grava um resumo simples em `integration-tests/reports/manual-incoming-call-YYYYmmdd-HHMMSS/summary.txt`.
 
-Para alterar o tempo de espera:
-
-```bash
-TIMEOUT_SECONDS=60 integration-tests/scenarios/incoming_call_twilio.sh
-```
+O script não usa `adb`, não usa `logcat` e não instala nada automaticamente.
 
 ## Relatórios
 
 Os relatórios ficam em:
 
 ```text
-integration-tests/reports/incoming-call-YYYYmmdd-HHMMSS/
+integration-tests/reports/manual-incoming-call-YYYYmmdd-HHMMSS/
 ```
 
 Artefatos esperados:
 
-- `logcat.txt`
-- `screenshot.png`
 - `summary.txt`
 - `twilio-call.txt`
 
@@ -103,7 +83,6 @@ Artefatos esperados:
 
 - cada chamada Twilio pode gerar custo;
 - teste em aparelho físico só quando necessário;
-- mantenha a janela de espera o menor tempo útil;
 - evite repetição desnecessária de chamadas.
 
 ## Cuidados com segredos

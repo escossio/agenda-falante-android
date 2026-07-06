@@ -40,3 +40,6 @@
 - Fluxo oficial de build local de APK debug organizado no AGT.
 - Distribuição local em `release-local/` habilitada e ignorada no Git.
 - Estrutura inicial de testes de integração Twilio preparada em `integration-tests/`.
+- Fluxo manual Twilio definido sem dependência de `adb`.
+- Instalação do APK agora é manual.
+- Chamada real continua sendo disparada por API no AGT.
